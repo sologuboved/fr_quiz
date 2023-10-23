@@ -1,0 +1,9 @@
+DB_NAME = 'français'
+DIVERS = 'divers'
+INDICE = 'indice'
+MOT = 'mot'
+NOMS = 'noms'
+PHRASES = 'phrases'
+PORT = 27017
+TRADUCTION = 'traduction'
+VERBES = 'verbes'
