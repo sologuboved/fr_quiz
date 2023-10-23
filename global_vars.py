@@ -1,9 +1,23 @@
-DB_NAME = 'fr_quiz'
+ACCENT_CIRCUMFLEX = 'accent_circumflex'
+ACCENT_EIGU = 'accent_eigu'
+ACCENT_GRAVE = 'accent_grave'
+ARTICLE = 'article'
+CONJUGAISON = 'conjugaison'
 DIVERS = 'divers'
+EXEMPLE = 'exemple'
+FEMININ = 'féminin'
+GENRE = 'genre'
 INDICE = 'indice'
 MOT = 'mot'
-NOMS = 'noms'
-PHRASES = 'phrases'
-PORT = 27017
+PRONONCIATION = 'prononciation'
 TRADUCTION = 'traduction'
+
+DB_NAME = 'fr_quiz'
+LOCALHOST = 'localhost'
+PORT = 27017
+
+ADJECTIFS = 'adjectifs'
+NOMS = 'noms'
+PARADIGMES = 'paradigmes'
+PHRASES = 'phrases'
 VERBES = 'verbes'
