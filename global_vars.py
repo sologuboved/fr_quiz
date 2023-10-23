@@ -1,4 +1,4 @@
-DB_NAME = 'français'
+DB_NAME = 'fr_quiz'
 DIVERS = 'divers'
 INDICE = 'indice'
 MOT = 'mot'
