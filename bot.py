@@ -46,7 +46,8 @@ async def send(update, context):
 async def cancel(update, context):
     """Cancels and ends the conversation."""
     await update.message.reply_text(
-        "D'accord, reviens bientôt !", reply_markup=ReplyKeyboardRemove()
+        "D'accord, reviens bientôt !",
+        reply_markup=ReplyKeyboardRemove(),
     )
     return ConversationHandler.END
 
