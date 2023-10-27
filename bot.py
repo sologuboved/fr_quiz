@@ -4,7 +4,7 @@ from telegram.ext import Application, CommandHandler, ConversationHandler, Messa
 from userinfo import TOKEN
 
 
-CATEGORIE = 0
+CATEGORIE, MOTS = range(1)
 
 
 async def start(update, context):
@@ -26,19 +26,21 @@ async def start(update, context):
 
 async def launch(update, context):
     categorie = update.message.text
+    context.user_data['categorie'] = categorie
     await update.message.reply_text(
         f"D'accord, {categorie}",
         reply_markup=ReplyKeyboardRemove(),
     )
-    while True:
-        reply = await send_words(update, context)
-        if reply.lower() == 'assez':
-            await context.bot.send_message(chat_id=update.message.chat_id, text="")
-            break
+    return MOTS
 
 
-async def send_words(update, context):
-    return 'assez'
+async def send(update, context):
+    print('!!', context.user_data['categorie'])
+    await update.message.reply_text(
+        f"Some word",
+        reply_markup=ReplyKeyboardRemove(),
+    )
+    return MOTS
 
 
 async def cancel(update, context):
@@ -56,6 +58,7 @@ def main() -> None:
         entry_points=[CommandHandler("start", start)],
         states={
             CATEGORIE: [MessageHandler(filters.Regex("^(Noms|Verbs|Adjectifs|Phrases|Tout)$"), launch)],
+            MOTS: [MessageHandler(filters.TEXT & ~filters.COMMAND, send)],
             # PHOTO: [MessageHandler(filters.PHOTO, photo), CommandHandler("skip", skip_photo)],
             # LOCATION: [
             #     MessageHandler(filters.LOCATION, location),
