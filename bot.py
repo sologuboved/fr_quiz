@@ -4,7 +4,7 @@ from telegram.ext import Application, CommandHandler, ConversationHandler, Messa
 from userinfo import TOKEN
 
 
-CATEGORIE, MOTS = range(1)
+CATEGORIE, MOTS = range(2)
 
 
 async def start(update, context):
