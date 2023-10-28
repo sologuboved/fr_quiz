@@ -10,4 +10,6 @@ NOMS = 'noms'
 PHRASES = 'phrases'
 VERBES = 'verbes'
 
+TOUT = 'tout'
+
 VOCABULAIRES = get_abs_path('vocabulaires')

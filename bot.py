@@ -4,19 +4,18 @@ from telegram.ext import Application, CommandHandler, ConversationHandler, Messa
 from userinfo import TOKEN
 
 
-CATEGORIE, MOTS = range(2)
+CATEGORIE, INDICE, MOTS = range(3)
 
 
 async def start(update, context):
-    reply_keyboard = [
-        ['Noms', 'Verbs'],
-        ['Adjectifs', 'Phrases'],
-        ['Tout'],
-    ]
     await update.message.reply_text(
         "Choisissez la catégorie",
         reply_markup=ReplyKeyboardMarkup(
-            reply_keyboard,
+            [
+                ['Noms', 'Verbs'],
+                ['Adjectifs', 'Phrases'],
+                ['Tout'],
+            ],
             one_time_keyboard=True,
             input_field_placeholder="Catégorie ?",
         ),
@@ -24,12 +23,22 @@ async def start(update, context):
     return CATEGORIE
 
 
-async def launch(update, context):
+async def learn_category(update, context):
     categorie = update.message.text
     context.user_data['categorie'] = categorie
+    await update.message.reply_text(
+        f"D'accord, {categorie}.\n\nQuel indice ?",
+        reply_markup=ReplyKeyboardRemove(),
+    )
+    return INDICE
+
+
+async def learn_index(update, context):
+    indice = update.message.text
+    context.user_data['indice'] = indice
     word = 'word'
     await update.message.reply_text(
-        f"D'accord, {categorie}.\n\n{word}?",
+        f"D'accord, {indice}.\n\n{word} ?",
         reply_markup=ReplyKeyboardRemove(),
     )
     return MOTS
@@ -59,7 +68,7 @@ def main() -> None:
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
         states={
-            CATEGORIE: [MessageHandler(filters.Regex("^(Noms|Verbs|Adjectifs|Phrases|Tout)$"), launch)],
+            CATEGORIE: [MessageHandler(filters.Regex("^(Noms|Verbs|Adjectifs|Phrases|Tout)$"), learn_category)],
             MOTS: [MessageHandler(filters.TEXT & ~filters.COMMAND, send)],
         },
         fallbacks=[CommandHandler("cancel", cancel)],
