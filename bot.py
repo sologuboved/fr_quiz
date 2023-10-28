@@ -27,8 +27,9 @@ async def start(update, context):
 async def launch(update, context):
     categorie = update.message.text
     context.user_data['categorie'] = categorie
+    word = 'word'
     await update.message.reply_text(
-        f"D'accord, {categorie}",
+        f"D'accord, {categorie}.\n\n{word}?",
         reply_markup=ReplyKeyboardRemove(),
     )
     return MOTS
