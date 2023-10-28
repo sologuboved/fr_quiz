@@ -69,6 +69,7 @@ def main() -> None:
         entry_points=[CommandHandler("start", start)],
         states={
             CATEGORIE: [MessageHandler(filters.Regex("^(Noms|Verbs|Adjectifs|Phrases|Tout)$"), learn_category)],
+            INDICE: [MessageHandler(filters.TEXT & ~filters.COMMAND, learn_index)],
             MOTS: [MessageHandler(filters.TEXT & ~filters.COMMAND, send)],
         },
         fallbacks=[CommandHandler("cancel", cancel)],
