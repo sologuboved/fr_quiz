@@ -24,8 +24,21 @@ def csv_to_mongo(anew, collname, fname=None):
         target.drop()
     else:
         print(f"Initially {target.estimated_document_count()} entries")
-    target.insert_many(list(read_csv(fname)))
+    target.insert_many([process(entry) for entry in read_csv(fname)])
     print(f"Currently {target.estimated_document_count()} entries")
+
+
+def process(entry):
+    for fieldname in entry:
+        fieldcontent = entry[fieldname]
+        if fieldcontent:
+            try:
+                entry[fieldname] = int(fieldcontent)
+            except ValueError:
+                pass
+        else:
+            entry[fieldname] = None
+    return entry
 
 
 def total_upd_from_csv():
