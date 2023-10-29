@@ -3,7 +3,6 @@ from telegram.ext import Application, CommandHandler, ConversationHandler, Messa
 
 from userinfo import TOKEN
 
-
 CATEGORIE, INDICE, ACCENTS, MOTS = range(4)
 
 
@@ -24,6 +23,7 @@ async def start_and_ask_about_category(update, context):
 
 
 async def learn_category_and_ask_about_index(update, context):
+    print('here!')
     categorie = update.message.text
     context.user_data['categorie'] = categorie
     await update.message.reply_text(
@@ -34,10 +34,11 @@ async def learn_category_and_ask_about_index(update, context):
 
 
 async def learn_index_and_ask_about_accents_or_skip_and_send_1st_word(update, context):
+    print('here!')
     indice = update.message.text
     context.user_data['indice'] = indice
     intro = f"D'accord, {indice}.\n\n"
-    if context.user_data['categorie'] == 'Phrases':
+    if context.user_data.get('categorie') == 'Phrases':
         word = 'word'
         await update.message.reply_text(
             f"{intro}{word}",
@@ -59,24 +60,42 @@ async def learn_index_and_ask_about_accents_or_skip_and_send_1st_word(update, co
 
 
 async def learn_accents_and_send_1st_word(update, context):
+    print('here!')
     accents = update.message.text
     context.user_data['accents'] = accents
     word = 'word'
     await update.message.reply_text(
         f"D'accord, {accents}.\n\n{word}",
         reply_markup=ReplyKeyboardRemove(),
-
     )
     return MOTS
 
 
 async def send_words(update, context):
-    print('!!', context.user_data['categorie'])
     await update.message.reply_text(
         f"Some word",
         reply_markup=ReplyKeyboardRemove(),
     )
     return MOTS
+
+
+async def skip(update, context):
+    print(context.user_data)
+    if 'indice' in context.user_data:
+        point = ACCENTS
+        to_skip = 'accents'
+    elif 'categorie' in context.user_data:
+        point = INDICE
+        to_skip = 'indice'
+    else:
+        point = CATEGORIE
+        to_skip = 'categorie'
+    await update.message.reply_text(
+        f"D'accord. Nous sautons {to_skip}.",
+        reply_markup=ReplyKeyboardRemove(),
+    )
+    print(point)
+    return point
 
 
 async def cancel(update, context):
@@ -92,16 +111,22 @@ def main() -> None:
     application = Application.builder().token(TOKEN).build()
 
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler("start", start_and_ask_about_category)],
+        entry_points=[CommandHandler("start", start_and_ask_about_category), CommandHandler("skip", skip)],
         states={
-            CATEGORIE: [MessageHandler(
-                filters.Regex("^(Noms|Verbs|Adjectifs|Phrases|Tout)$"),
-                learn_category_and_ask_about_index,
-            )],
-            INDICE: [MessageHandler(
-                filters.TEXT & ~filters.COMMAND,
-                learn_index_and_ask_about_accents_or_skip_and_send_1st_word,
-            )],
+            CATEGORIE: [
+                MessageHandler(
+                    filters.Regex("^(Noms|Verbs|Adjectifs|Phrases|Tout)$"),
+                    learn_category_and_ask_about_index,
+                ),
+                CommandHandler("skip", skip),
+            ],
+            INDICE: [
+                MessageHandler(
+                    filters.TEXT & ~filters.COMMAND,
+                    learn_index_and_ask_about_accents_or_skip_and_send_1st_word,
+                ),
+                CommandHandler("skip", skip),
+            ],
             ACCENTS: [MessageHandler(
                 filters.Regex("^(Eigu|Grave|Circumflex|Arbitraire|N'importe)$"),
                 learn_accents_and_send_1st_word,
