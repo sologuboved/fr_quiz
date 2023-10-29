@@ -6,7 +6,7 @@ from userinfo import TOKEN
 CATEGORIE, INDICE, ACCENTS, MOTS = range(4)
 
 
-async def start_and_ask_about_category(update, context):
+async def start_and_ask_for_category(update, context):
     await update.message.reply_text(
         "Choisissez la catégorie",
         reply_markup=ReplyKeyboardMarkup(
@@ -22,23 +22,23 @@ async def start_and_ask_about_category(update, context):
     return CATEGORIE
 
 
-async def learn_category_and_ask_about_index(update, context):
+async def store_category_and_ask_for_index(update, context):
     print('here!')
     categorie = update.message.text
     context.user_data['categorie'] = categorie
     await update.message.reply_text(
-        f"D'accord, {categorie}.\n\nQuel indice ?",
+        f"D'accord, {categorie.lower()}.\n\nQuel indice ?",
         reply_markup=ReplyKeyboardRemove(),
     )
     return INDICE
 
 
-async def learn_index_and_ask_about_accents_or_skip_and_send_1st_word(update, context):
+async def store_index_and_ask_for_accents_or_skip_and_send_1st_word(update, context):
     print('here!')
     indice = update.message.text
     context.user_data['indice'] = indice
     intro = f"D'accord, {indice}.\n\n"
-    if context.user_data.get('categorie') == 'Phrases':
+    if context.user_data['categorie'] == 'Phrases':
         word = 'word'
         await update.message.reply_text(
             f"{intro}{word}",
@@ -59,24 +59,25 @@ async def learn_index_and_ask_about_accents_or_skip_and_send_1st_word(update, co
     return ACCENTS
 
 
-async def learn_accents_and_send_1st_word(update, context):
+async def store_accents_and_send_1st_word(update, context):
     print('here!')
     accents = update.message.text
     context.user_data['accents'] = accents
     word = 'word'
     await update.message.reply_text(
-        f"D'accord, {accents}.\n\n{word}",
+        f"D'accord, {accents.lower()}.\n\n{word}",
         reply_markup=ReplyKeyboardRemove(),
     )
     return MOTS
 
 
-async def send_words(update, context):
+async def skip_category_and_ask_for_index(update, context):
+    context.user_data['categorie'] = 'Tout'
     await update.message.reply_text(
-        f"Some word",
+        "skip_category_and_ask_for_index.\n\nQuel indice ?",
         reply_markup=ReplyKeyboardRemove(),
     )
-    return MOTS
+    return INDICE
 
 
 async def skip(update, context):
@@ -98,6 +99,14 @@ async def skip(update, context):
     return point
 
 
+async def send_words(update, context):
+    await update.message.reply_text(
+        f"Some word",
+        reply_markup=ReplyKeyboardRemove(),
+    )
+    return MOTS
+
+
 async def cancel(update, context):
     """Cancels and ends the conversation."""
     await update.message.reply_text(
@@ -111,26 +120,25 @@ def main() -> None:
     application = Application.builder().token(TOKEN).build()
 
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler("start", start_and_ask_about_category), CommandHandler("skip", skip)],
+        entry_points=[CommandHandler("start", start_and_ask_for_category)],
         states={
             CATEGORIE: [
                 MessageHandler(
                     filters.Regex("^(Noms|Verbs|Adjectifs|Phrases|Tout)$"),
-                    learn_category_and_ask_about_index,
+                    store_category_and_ask_for_index,
                 ),
-                CommandHandler("skip", skip),
+                CommandHandler("skip", skip_category_and_ask_for_index),
             ],
             INDICE: [
                 MessageHandler(
                     filters.TEXT & ~filters.COMMAND,
-                    learn_index_and_ask_about_accents_or_skip_and_send_1st_word,
+                    store_index_and_ask_for_accents_or_skip_and_send_1st_word,
                 ),
-                CommandHandler("skip", skip),
             ],
             ACCENTS: [MessageHandler(
                 filters.Regex("^(Eigu|Grave|Circumflex|Arbitraire|N'importe)$"),
-                learn_accents_and_send_1st_word,
-            ), CommandHandler("skip", skip)],
+                store_accents_and_send_1st_word,
+            )],
             MOTS: [MessageHandler(
                 filters.TEXT & ~filters.COMMAND,
                 send_words,
