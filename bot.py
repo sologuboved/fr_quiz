@@ -4,10 +4,10 @@ from telegram.ext import Application, CommandHandler, ConversationHandler, Messa
 from userinfo import TOKEN
 
 
-CATEGORIE, INDICE, MOTS = range(3)
+CATEGORIE, INDICE, ACCENTS, MOTS = range(4)
 
 
-async def start(update, context):
+async def start_and_ask_about_category(update, context):
     await update.message.reply_text(
         "Choisissez la catégorie",
         reply_markup=ReplyKeyboardMarkup(
@@ -23,7 +23,7 @@ async def start(update, context):
     return CATEGORIE
 
 
-async def learn_category(update, context):
+async def learn_category_and_ask_about_index(update, context):
     categorie = update.message.text
     context.user_data['categorie'] = categorie
     await update.message.reply_text(
@@ -33,18 +33,36 @@ async def learn_category(update, context):
     return INDICE
 
 
-async def learn_index(update, context):
+async def learn_index_and_ask_about_accents(update, context):
     indice = update.message.text
     context.user_data['indice'] = indice
+    await update.message.reply_text(
+        f"D'accord, {indice}.\n\nEt les accents ?",
+        reply_markup=ReplyKeyboardMarkup(
+            [
+                ['Eigu', 'Grave', 'Circumflex'],
+                ['Arbitraire', "N'importe"],
+            ],
+            one_time_keyboard=True,
+            input_field_placeholder="Accents ?",
+        ),
+    )
+    return ACCENTS
+
+
+async def learn_accents_and_send_1st_word(update, context):
+    accents = update.message.text
+    context.user_data['accents'] = accents
     word = 'word'
     await update.message.reply_text(
-        f"D'accord, {indice}.\n\n{word} ?",
+        f"D'accord, {accents}.\n\n{word}",
         reply_markup=ReplyKeyboardRemove(),
+
     )
     return MOTS
 
 
-async def send(update, context):
+async def send_words(update, context):
     print('!!', context.user_data['categorie'])
     await update.message.reply_text(
         f"Some word",
@@ -66,11 +84,11 @@ def main() -> None:
     application = Application.builder().token(TOKEN).build()
 
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler("start", start)],
+        entry_points=[CommandHandler("start", start_and_ask_about_category)],
         states={
-            CATEGORIE: [MessageHandler(filters.Regex("^(Noms|Verbs|Adjectifs|Phrases|Tout)$"), learn_category)],
-            INDICE: [MessageHandler(filters.TEXT & ~filters.COMMAND, learn_index)],
-            MOTS: [MessageHandler(filters.TEXT & ~filters.COMMAND, send)],
+            CATEGORIE: [MessageHandler(filters.Regex("^(Noms|Verbs|Adjectifs|Phrases|Tout)$"), learn_category_and_ask_about_index)],
+            INDICE: [MessageHandler(filters.TEXT & ~filters.COMMAND, learn_index_and_ask_about_accents)],
+            MOTS: [MessageHandler(filters.TEXT & ~filters.COMMAND, send_words)],
         },
         fallbacks=[CommandHandler("cancel", cancel)],
     )
