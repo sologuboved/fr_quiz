@@ -86,9 +86,22 @@ def main() -> None:
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start_and_ask_about_category)],
         states={
-            CATEGORIE: [MessageHandler(filters.Regex("^(Noms|Verbs|Adjectifs|Phrases|Tout)$"), learn_category_and_ask_about_index)],
-            INDICE: [MessageHandler(filters.TEXT & ~filters.COMMAND, learn_index_and_ask_about_accents)],
-            MOTS: [MessageHandler(filters.TEXT & ~filters.COMMAND, send_words)],
+            CATEGORIE: [MessageHandler(
+                filters.Regex("^(Noms|Verbs|Adjectifs|Phrases|Tout)$"),
+                learn_category_and_ask_about_index,
+            )],
+            INDICE: [MessageHandler(
+                filters.TEXT & ~filters.COMMAND,
+                learn_index_and_ask_about_accents,
+            )],
+            ACCENTS: [MessageHandler(
+                filters.Regex("^(Eigu|Grave|Circumflex|Arbitraire|N'importe)$"),
+                learn_accents_and_send_1st_word,
+            )],
+            MOTS: [MessageHandler(
+                filters.TEXT & ~filters.COMMAND,
+                send_words,
+            )],
         },
         fallbacks=[CommandHandler("cancel", cancel)],
     )
