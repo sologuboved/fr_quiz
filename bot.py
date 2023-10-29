@@ -92,7 +92,7 @@ async def skip(update, context):
         to_skip = 'categorie'
     await update.message.reply_text(
         f"D'accord. Nous sautons {to_skip}.",
-        reply_markup=ReplyKeyboardRemove(),
+        # reply_markup=ReplyKeyboardRemove(),
     )
     print(point)
     return point
@@ -130,7 +130,7 @@ def main() -> None:
             ACCENTS: [MessageHandler(
                 filters.Regex("^(Eigu|Grave|Circumflex|Arbitraire|N'importe)$"),
                 learn_accents_and_send_1st_word,
-            )],
+            ), CommandHandler("skip", skip)],
             MOTS: [MessageHandler(
                 filters.TEXT & ~filters.COMMAND,
                 send_words,
