@@ -33,11 +33,19 @@ async def learn_category_and_ask_about_index(update, context):
     return INDICE
 
 
-async def learn_index_and_ask_about_accents(update, context):
+async def learn_index_and_ask_about_accents_or_skip_and_send_1st_word(update, context):
     indice = update.message.text
     context.user_data['indice'] = indice
+    intro = f"D'accord, {indice}.\n\n"
+    if context.user_data['categorie'] == 'Phrases':
+        word = 'word'
+        await update.message.reply_text(
+            f"{intro}{word}",
+            reply_markup=ReplyKeyboardRemove(),
+        )
+        return MOTS
     await update.message.reply_text(
-        f"D'accord, {indice}.\n\nEt les accents ?",
+        f"{intro}Et les accents ?",
         reply_markup=ReplyKeyboardMarkup(
             [
                 ['Eigu', 'Grave', 'Circumflex'],
@@ -92,7 +100,7 @@ def main() -> None:
             )],
             INDICE: [MessageHandler(
                 filters.TEXT & ~filters.COMMAND,
-                learn_index_and_ask_about_accents,
+                learn_index_and_ask_about_accents_or_skip_and_send_1st_word,
             )],
             ACCENTS: [MessageHandler(
                 filters.Regex("^(Eigu|Grave|Circumflex|Arbitraire|N'importe)$"),
